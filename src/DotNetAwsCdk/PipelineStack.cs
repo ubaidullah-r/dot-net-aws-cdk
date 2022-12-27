@@ -30,6 +30,7 @@ namespace CdkWorkshop
                         "sudo dpkg -i packages-microsoft-prod.deb",
                         "sudo apt-get update",
                         "sudo apt-get install -y dotnet-sdk-3.1",
+                        "ls",
                         "dotnet build"  // Language-specific build cmd
                     }
                 }),

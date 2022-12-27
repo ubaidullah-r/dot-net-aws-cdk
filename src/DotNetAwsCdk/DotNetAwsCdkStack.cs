@@ -8,6 +8,8 @@ namespace CdkWorkshop
 {
     public class DotNetAwsCdkStack : Stack
     {
+        public readonly CfnOutput HCViewerUrl;
+        public readonly CfnOutput HCEndpoint;
         public DotNetAwsCdkStack(Construct scope, string id) : base(scope, id)
         {
             // Defines a new lambda resource
@@ -24,18 +26,28 @@ namespace CdkWorkshop
                 Downstream = hello
             });
 
+
             // Defines an API Gateway REST API resource backed by our "hello" function.
-            new LambdaRestApi(this, "Endpoint", new LambdaRestApiProps
+            var gateway = new LambdaRestApi(this, "Endpoint", new LambdaRestApiProps
             {
                 Handler = helloWithCounter.Handler
             });
 
             // Defines a new TableViewer resource
-            new TableViewer(this, "ViewerHitCount", new TableViewerProps
+            var tv = new TableViewer(this, "ViewerHitCount", new TableViewerProps
             {
                 Title = "Hello Hits",
                 Table = helloWithCounter.MyTable,
                 SortBy = "-hits"
+            });
+            this.HCViewerUrl = new CfnOutput(this, "TableViewerUrl", new CfnOutputProps
+            {
+                Value = gateway.Url
+            });
+
+            this.HCEndpoint = new CfnOutput(this, "GatewayUrl", new CfnOutputProps
+            {
+                Value = tv.Endpoint
             });
         }
     }

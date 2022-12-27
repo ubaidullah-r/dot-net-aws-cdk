@@ -2,49 +2,50 @@ using Amazon.CDK;
 using Amazon.CDK.AWS.APIGateway;
 using Amazon.CDK.AWS.Lambda;
 using Cdklabs.DynamoTableViewer;
-using CdkWorkshop;
 using Constructs;
 
-
-namespace DotNetAwsCdk
+namespace CdkWorkshop
 {
     public class DotNetAwsCdkStack : Stack
     {
-        internal DotNetAwsCdkStack(Construct scope, string id, IStackProps props = null) : base(scope, id, props)
+        public readonly CfnOutput HCViewerUrl;
+        public readonly CfnOutput HCEndpoint;
+
+        // Defines a new lambda resource
+        public DotNetAwsCdkStack(Construct parent, string id, IStackProps props = null) : base(parent, id, props)
         {
             var hello = new Function(this, "HelloHandler", new FunctionProps
             {
                 Runtime = Runtime.NODEJS_14_X,
                 Code = Code.FromAsset("lambda"),
                 Handler = "hello.handler"
-
-
             });
+
             var helloWithCounter = new HitCounter(this, "HelloHitCounter", new HitCounterProps
             {
                 Downstream = hello
             });
 
-
-            new LambdaRestApi(this, "Endpoint", new LambdaRestApiProps
+            var gateway = new LambdaRestApi(this, "Endpoint", new LambdaRestApiProps
             {
-
                 Handler = helloWithCounter.Handler
-
-
             });
-            // Defines a new TableViewer resource
-            new TableViewer(this, "ViewerHitCount", new TableViewerProps
+
+            var tv = new TableViewer(this, "ViewerHitCount", new TableViewerProps
             {
                 Title = "Hello Hits",
-                Table = helloWithCounter.MyTable,
-                SortBy = "-hits"      // optional ("-" denotes descending order)
-
-
-
+                Table = helloWithCounter.MyTable
             });
 
+            this.HCViewerUrl = new CfnOutput(this, "TableViewerUrl", new CfnOutputProps
+            {
+                Value = tv.Endpoint
+            });
 
+            this.HCEndpoint = new CfnOutput(this, "GatewayUrl", new CfnOutputProps
+            {
+                Value = gateway.Url
+            });
         }
     }
 }

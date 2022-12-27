@@ -1,7 +1,9 @@
 using Amazon.CDK;
-using Constructs;
 using Amazon.CDK.AWS.CodeCommit;
-
+using Amazon.CDK.AWS.CodePipeline;
+using Amazon.CDK.AWS.CodePipeline.Actions;
+using Amazon.CDK.Pipelines;
+using Constructs;
 namespace CdkWorkshop
 {
     public class WorkshopPipelineStack : Stack
@@ -14,6 +16,21 @@ namespace CdkWorkshop
                 RepositoryName = "WorkshopRepo"
             });
             // Pipeline code goes here
+            var pipeline = new CodePipeline(this, "Pipeline", new CodePipelineProps
+            {
+                PipelineName = "WorkshopPipeline",
+
+                // Builds our source code outlined above into a could assembly artifact
+                Synth = new ShellStep("Synth", new ShellStepProps
+                {
+                    Input = CodePipelineSource.CodeCommit(repo, "main"),  // Where to get source code to build
+                    Commands = new string[] {
+                        "npm install -g aws-cdk",
+                        "sudo apt-get install -y dotnet-sdk-3.1", // Language-specific install cmd
+                        "dotnet build"  // Language-specific build cmd
+                    }
+                }),
+            });
         }
     }
 }

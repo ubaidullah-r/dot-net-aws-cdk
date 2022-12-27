@@ -6,10 +6,14 @@ namespace CdkWorkshop
 {
     public class WorkshopPipelineStage : Stage
     {
+        public readonly CfnOutput HCViewerUrl;
+        public readonly CfnOutput HCEndpoint;
         public WorkshopPipelineStage(Construct scope, string id, StageProps props = null)
             : base(scope, id, props)
         {
-            var service = new  DotNetAwsCdkStack(this, "WebService");
+            var service = new DotNetAwsCdkStack(this, "WebService");
+            this.HCEndpoint = service.HCEndpoint;
+            this.HCViewerUrl = service.HCViewerUrl;
         }
     }
 }

@@ -4,6 +4,8 @@ using Amazon.CDK.AWS.CodePipeline;
 using Amazon.CDK.AWS.CodePipeline.Actions;
 using Amazon.CDK.Pipelines;
 using Constructs;
+using System.Collections.Generic;
+
 namespace CdkWorkshop
 {
     public class WorkshopPipelineStack : Stack
@@ -41,6 +43,24 @@ namespace CdkWorkshop
             });
             var deploy = new WorkshopPipelineStage(this, "Deploy");
             var deployStage = pipeline.AddStage(deploy);
+            deployStage.AddPost(new ShellStep("TestViewerEndpoint", new ShellStepProps
+            {
+                EnvFromCfnOutputs = new Dictionary<string, CfnOutput> {
+                    { "ENDPOINT_URL", deploy.HCViewerUrl }
+                },
+                Commands = new string[] { "curl -Ssf $ENDPOINT_URL" }
+            }));
+            deployStage.AddPost(new ShellStep("TestAPIGatewayEndpoint", new ShellStepProps
+            {
+                EnvFromCfnOutputs = new Dictionary<string, CfnOutput> {
+                    { "ENDPOINT_URL", deploy.HCEndpoint}
+                },
+                Commands = new string[] {
+                    "curl -Ssf $ENDPOINT_URL/",
+                    "curl -Ssf $ENDPOINT_URL/hello",
+                    "curl -Ssf $ENDPOINT_URL/test"
+                }
+            }));
         }
     }
 }

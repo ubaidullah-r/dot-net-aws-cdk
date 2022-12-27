@@ -8,43 +8,34 @@ namespace CdkWorkshop
 {
     public class DotNetAwsCdkStack : Stack
     {
-        public readonly CfnOutput HCViewerUrl;
-        public readonly CfnOutput HCEndpoint;
-
-        // Defines a new lambda resource
-        public DotNetAwsCdkStack(Construct parent, string id, IStackProps props = null) : base(parent, id, props)
+        public DotNetAwsCdkStack(Construct scope, string id) : base(scope, id)
         {
+            // Defines a new lambda resource
             var hello = new Function(this, "HelloHandler", new FunctionProps
             {
-                Runtime = Runtime.NODEJS_14_X,
-                Code = Code.FromAsset("lambda"),
-                Handler = "hello.handler"
+                Runtime = Runtime.NODEJS_14_X, // execution environment
+                Code = Code.FromAsset("lambda"), // Code loaded from the "lambda" directory
+                Handler = "hello.handler" // file is "hello", function is "handler"
             });
 
+            // Defines out HitCounter resource
             var helloWithCounter = new HitCounter(this, "HelloHitCounter", new HitCounterProps
             {
                 Downstream = hello
             });
 
-            var gateway = new LambdaRestApi(this, "Endpoint", new LambdaRestApiProps
+            // Defines an API Gateway REST API resource backed by our "hello" function.
+            new LambdaRestApi(this, "Endpoint", new LambdaRestApiProps
             {
                 Handler = helloWithCounter.Handler
             });
 
-            var tv = new TableViewer(this, "ViewerHitCount", new TableViewerProps
+            // Defines a new TableViewer resource
+            new TableViewer(this, "ViewerHitCount", new TableViewerProps
             {
                 Title = "Hello Hits",
-                Table = helloWithCounter.MyTable
-            });
-
-            this.HCViewerUrl = new CfnOutput(this, "TableViewerUrl", new CfnOutputProps
-            {
-                Value = tv.Endpoint
-            });
-
-            this.HCEndpoint = new CfnOutput(this, "GatewayUrl", new CfnOutputProps
-            {
-                Value = gateway.Url
+                Table = helloWithCounter.MyTable,
+                SortBy = "-hits"
             });
         }
     }

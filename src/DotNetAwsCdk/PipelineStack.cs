@@ -1,10 +1,6 @@
 using Amazon.CDK;
-using Amazon.CDK.AWS.CodeCommit;
-using Amazon.CDK.AWS.CodePipeline;
-using Amazon.CDK.AWS.CodePipeline.Actions;
-using Amazon.CDK.Pipelines;
 using Constructs;
-using System.Collections.Generic;
+using Amazon.CDK.AWS.CodeCommit;
 
 namespace CdkWorkshop
 {
@@ -17,47 +13,7 @@ namespace CdkWorkshop
             {
                 RepositoryName = "WorkshopRepo"
             });
-
-            // The basic pipeline declaration. This sets the initial structure
-            // of our pipeline
-            var pipeline = new CodePipeline(this, "Pipeline", new CodePipelineProps
-            {
-                PipelineName = "WorkshopPipeline",
-
-                // Builds our source code outlined above into a cloud assembly artifact
-                Synth = new ShellStep("Synth", new ShellStepProps
-                {
-                    Input = CodePipelineSource.CodeCommit(repo, "main"),  // Where to get source code to build
-                    Commands = new string[] {
-                        "npm install -g aws-cdk",
-                        "sudo apt-get install -y dotnet-sdk-3.1",  // Language-specific install cmd
-                        "dotnet build",  // Language-specific build cmd
-                        "npx cdk synth"
-                    }
-                }),
-            });
-            var deploy = new WorkshopPipelineStage(this, "Deploy");
-            var deployStage = pipeline.AddStage(deploy);
-            // CODE HERE...
-
-            deployStage.AddPost(new ShellStep("TestViewerEndpoint", new ShellStepProps
-            {
-                EnvFromCfnOutputs = new Dictionary<string, CfnOutput> {
-        { "ENDPOINT_URL", deploy.HCViewerUrl }
-    },
-                Commands = new string[] { "curl -Ssf $ENDPOINT_URL" }
-            }));
-            deployStage.AddPost(new ShellStep("TestAPIGatewayEndpoint", new ShellStepProps
-            {
-                EnvFromCfnOutputs = new Dictionary<string, CfnOutput> {
-        { "ENDPOINT_URL", deploy.HCEndpoint }
-    },
-                Commands = new string[] {
-        "curl -Ssf $ENDPOINT_URL/",
-        "curl -Ssf $ENDPOINT_URL/hello",
-        "curl -Ssf $ENDPOINT_URL/test"
-    }
-            }));
+            // Pipeline code goes here
         }
     }
 }

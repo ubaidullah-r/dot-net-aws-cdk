@@ -10,14 +10,12 @@ namespace CdkWorkshop
     {
         // The function for which we want to count url hits
         public IFunction Downstream { get; set; }
-
     }
 
     public class HitCounter : Construct
     {
-        public Function Handler { get; }
+        public readonly Function Handler;
         public readonly Table MyTable;
-
 
         public HitCounter(Construct scope, string id, HitCounterProps props) : base(scope, id)
         {
@@ -30,8 +28,6 @@ namespace CdkWorkshop
                 }
             });
             MyTable = table;
-            
-
 
             Handler = new Function(this, "HitCounterHandler", new FunctionProps
             {
@@ -44,7 +40,10 @@ namespace CdkWorkshop
                     ["HITS_TABLE_NAME"] = table.TableName
                 }
             });
+
+            // Grant the lambda role read/write permissions to our table
             table.GrantReadWriteData(Handler);
+
             // Grant the lambda role invoke permissions to the downstream function
             props.Downstream.GrantInvoke(Handler);
         }

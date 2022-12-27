@@ -32,9 +32,10 @@ namespace CdkWorkshop
                         "sudo apt-get install -y dotnet-sdk-3.1",
                         "cd src",
 
-                        "dotnet build",  // Language-specific build cmd
-                        "npx cdk synth",
-                        "cd .."
+                        "dotnet build", // Language-specific build cmd
+                        "cd ..",
+                        "npx cdk synth"
+
                     }
                 }),
             });

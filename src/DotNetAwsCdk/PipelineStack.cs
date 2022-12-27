@@ -39,6 +39,8 @@ namespace CdkWorkshop
                     }
                 }),
             });
+            var deploy = new WorkshopPipelineStage(this, "Deploy");
+            var deployStage = pipeline.AddStage(deploy);
         }
     }
 }

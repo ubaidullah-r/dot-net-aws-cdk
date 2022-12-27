@@ -33,6 +33,7 @@ namespace CdkWorkshop
                         "cd src",
 
                         "dotnet build",  // Language-specific build cmd
+                        "npx cdk synth",
                         "cd .."
                     }
                 }),

@@ -9,7 +9,7 @@ namespace DotNetAwsCdk
         public static void Main(string[] args)
         {
             var app = new App();
-            new DotNetAwsCdkStack(app, "DotNetAwsCdkStack");
+
             new WorkshopPipelineStack(app, "WorkshopPipelineStack");
 
 
